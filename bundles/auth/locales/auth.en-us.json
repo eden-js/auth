@@ -1,0 +1,10 @@
+{
+  "register" : {
+    "exists"  : "Account is already registered with {{type}} integration. To update this integration, please remove it first",
+    "success" : "Successfully added {{type}} integration"
+  },
+  "login"    : {
+    "error"   : "Cannot sign in",
+    "success" : "Successfully logged in with {{type}}"
+  }
+}
