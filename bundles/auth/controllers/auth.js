@@ -14,27 +14,26 @@ const User = model('user');
  * @extends controller
  */
 class AuthController extends Controller {
-
   /**
    * Construct Auth Controller class
    */
-  constructor () {
+  constructor() {
     // Run super
     super();
 
     // Set private variables
     this._types = [
-      'discord'
+      'discord',
     ];
 
     // Bind private methods
     this._authenticate = this._authenticate.bind(this);
 
     // Bind public methods
-    this.authAction            = this.authAction.bind(this);
-    this.oneTimeAction         = this.oneTimeAction.bind(this);
-    this.authForceAction       = this.authForceAction.bind(this);
-    this.authRequestAction     = this.authRequestAction.bind(this);
+    this.authAction = this.authAction.bind(this);
+    this.oneTimeAction = this.oneTimeAction.bind(this);
+    this.authForceAction = this.authForceAction.bind(this);
+    this.authRequestAction = this.authRequestAction.bind(this);
     this.authForceSubmitAction = this.authForceSubmitAction.bind(this);
   }
 
@@ -52,21 +51,21 @@ class AuthController extends Controller {
    *
    * @private
    */
-  async _authenticate (type, req, identifier, refreshToken, profile, next) {
+  async _authenticate(type, req, identifier, refreshToken, profile, next) {
     // Find an auth
     let auth = await Auth.findOne({
-      'id'   : profile.id || identifier,
-      'type' : type
+      id   : profile.id || identifier,
+      type,
     });
 
     // Check req user
     if (req.user) {
       // Return user and auth
       return next(null, auth && await auth.get('user'), auth || new Auth({
-        'id'      : profile.id || identifier,
-        'type'    : type,
-        'refresh' : refreshToken,
-        'profile' : profile
+        id      : profile.id || identifier,
+        type,
+        refresh : refreshToken,
+        profile,
       }));
     }
 
@@ -113,9 +112,9 @@ class AuthController extends Controller {
 
         // Run user register hook
         await this.eden.hook('user.register', {
-          'req'  : req,
-          'auth' : auth,
-          'user' : user
+          req,
+          auth,
+          user,
         });
 
         // Save user
@@ -131,10 +130,10 @@ class AuthController extends Controller {
 
     // Create new auth
     auth = new Auth({
-      'id'      : profile.id || identifier,
-      'type'    : type,
-      'refresh' : refreshToken,
-      'profile' : profile
+      id      : profile.id || identifier,
+      type,
+      refresh : refreshToken,
+      profile,
     });
 
     // Save auth
@@ -142,20 +141,20 @@ class AuthController extends Controller {
 
     // Set user
     const user = new User({
-      'registered' : true
+      registered : true,
     });
 
     // Set auths
-    const auths = [ auth ];
+    const auths = [auth];
 
     // Add auths to user
     user.set('auth', auths);
 
     // Run user register hook
     await this.eden.hook('user.register', {
-      'req'  : req,
-      'auth' : auth,
-      'user' : user
+      req,
+      auth,
+      user,
     });
 
     // Save user
@@ -182,7 +181,7 @@ class AuthController extends Controller {
    * @param {Request}  req
    * @param {Response} res
    */
-  authAction (req, res) {
+  authAction(req, res) {
     // Render auth
     res.render('auth');
   }
@@ -200,7 +199,7 @@ class AuthController extends Controller {
    *
    * @async
    */
-  async authRequestAction (req, res, next) {
+  async authRequestAction(req, res, next) {
     // Clean type param
     req.params.type = req.params.type.toLowerCase();
 
@@ -212,14 +211,14 @@ class AuthController extends Controller {
 
     // Check user and type
     if (req.user && await Auth.count({
-      'type'    : req.params.type,
-      'user.id' : req.user.get('_id').toString()
+      type      : req.params.type,
+      'user.id' : req.user.get('_id').toString(),
     })) {
       // Alert user
       req.alert('error', req.t('auth:register.exists', {
-        'type' : req.params.type
+        type : req.params.type,
       }), {
-        'save' : true
+        save : true,
       });
 
       // Redirect to auth
@@ -234,14 +233,14 @@ class AuthController extends Controller {
         if (user && req.user.get('_id').toString() === user.get('_id').toString()) {
           // Alert user
           req.alert('error', req.t('auth:register.exists', {
-            'type' : req.params.type
+            type : req.params.type,
           }), {
-            'save' : true
+            save : true,
           });
 
           // Redirect to auth
           return res.redirect('/auth');
-        } else if (user) {
+        } if (user) {
           // Check force
           if (!req.session.force) {
             // Redirect to force auth
@@ -305,9 +304,9 @@ class AuthController extends Controller {
 
         // Alert user
         req.alert('success', req.t('auth:register.success', {
-          'type' : req.params.type
+          type : req.params.type,
         }), {
-          'save' : true
+          save : true,
         });
 
         // Redirect to auth
@@ -318,9 +317,9 @@ class AuthController extends Controller {
       if (!user) {
         // Alert user
         req.alert('error', error || req.t('auth:login.error', {
-          'type' : req.params.type
+          type : req.params.type,
         }), {
-          'save' : true
+          save : true,
         });
 
         // Redirect to login
@@ -333,7 +332,7 @@ class AuthController extends Controller {
         if (error) {
           // Alert user
           req.alert('error', error, {
-            'save' : true
+            save : true,
           });
 
           // Redirect to login
@@ -345,9 +344,9 @@ class AuthController extends Controller {
 
         // Alert user
         req.alert('success', req.t('auth:login.success', {
-          'type' : req.params.type
+          type : req.params.type,
         }), {
-          'save' : true
+          save : true,
         });
 
         // Redirect to home
@@ -367,10 +366,10 @@ class AuthController extends Controller {
    * @param {Request}  req
    * @param {Response} res
    */
-  authForceAction (req, res) {
+  authForceAction(req, res) {
     // Render force
     res.render('auth/force', {
-      'type' : req.params.type
+      type : req.params.type,
     });
   }
 
@@ -385,10 +384,10 @@ class AuthController extends Controller {
    * @param {Request}  req
    * @param {Response} res
    */
-  authForceSubmitAction (req, res) {
+  authForceSubmitAction(req, res) {
     // Render force
     res.render('auth/force', {
-      'type' : req.params.type
+      type : req.params.type,
     });
   }
 
@@ -402,10 +401,10 @@ class AuthController extends Controller {
    * @route  {GET} /:otp/:redirect
    * @return {Promise}
    */
-  async oneTimeAction (req, res, next) {
+  async oneTimeAction(req, res, next) {
     // One time
-    let otpUser = await User.findOne({
-      'otp' : req.params.otp
+    const otpUser = await User.findOne({
+      otp : req.params.otp,
     });
 
     // If no otp
@@ -435,7 +434,6 @@ class AuthController extends Controller {
     // Redirect
     res.redirect(req.params.redirect);
   }
-
 }
 
 /**
