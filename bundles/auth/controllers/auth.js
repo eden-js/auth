@@ -77,7 +77,7 @@ class AuthController extends Controller {
       // Check user
       if (!user) {
         // Log error
-        console.error(auth.get('_id'));
+        global.printError(auth.get('_id'));
       }
 
       // Check user registered
@@ -206,7 +206,8 @@ class AuthController extends Controller {
     // Check type
     if (!this._types.includes(req.params.type)) {
       // Redirect to index
-      return res.redirect('/');
+      res.redirect('/');
+      return;
     }
 
     // Check user and type
@@ -222,7 +223,8 @@ class AuthController extends Controller {
       });
 
       // Redirect to auth
-      return res.redirect('/auth');
+      res.redirect('/auth');
+      return;
     }
 
     // Authenticate with passport
@@ -239,12 +241,14 @@ class AuthController extends Controller {
           });
 
           // Redirect to auth
-          return res.redirect('/auth');
+          res.redirect('/auth');
+          return;
         } if (user) {
           // Check force
           if (!req.session.force) {
             // Redirect to force auth
-            return res.redirect(`/auth/${req.params.type}/force`);
+            res.redirect(`/auth/${req.params.type}/force`);
+            return;
           }
 
           // Delete force
@@ -310,7 +314,8 @@ class AuthController extends Controller {
         });
 
         // Redirect to auth
-        return res.redirect('/auth');
+        res.redirect('/auth');
+        return;
       }
 
       // Check user
@@ -323,20 +328,22 @@ class AuthController extends Controller {
         });
 
         // Redirect to login
-        return res.redirect('/login');
+        res.redirect('/login');
+        return;
       }
 
       // Log user in
-      req.login(user, {}, async (error) => {
+      req.login(user, {}, async (loginError) => {
         // Check error
-        if (error) {
+        if (loginError) {
           // Alert user
-          req.alert('error', error, {
+          req.alert('error', loginError, {
             save : true,
           });
 
           // Redirect to login
-          return res.redirect('/login');
+          res.redirect('/login');
+          return;
         }
 
         // Run user login hook
@@ -350,7 +357,7 @@ class AuthController extends Controller {
         });
 
         // Redirect to home
-        return res.redirect('/');
+        res.redirect('/');
       });
     })(req, res, next);
   }
@@ -408,7 +415,10 @@ class AuthController extends Controller {
     });
 
     // If no otp
-    if (!otpUser) return next();
+    if (!otpUser) {
+      next();
+      return;
+    }
 
     // Login user
     await new Promise((resolve) => {
@@ -441,4 +451,4 @@ class AuthController extends Controller {
  *
  * @type {AuthController}
  */
-exports = module.exports = AuthController;
+module.exports = AuthController;

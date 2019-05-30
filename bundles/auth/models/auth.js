@@ -6,14 +6,6 @@ const Model = require('model');
  */
 class Auth extends Model {
   /**
-   * Construct Auth Model class
-   */
-  constructor() {
-    // Run super
-    super(...arguments);
-  }
-
-  /**
    * Initialize Auth Model class
    */
   static async initialize() {
@@ -24,6 +16,12 @@ class Auth extends Model {
 
     // Create type index
     await this.createIndex('type', {
+      type : -1,
+    });
+
+    // Create id+type index
+    await this.createIndex('type', {
+      id   : -1,
       type : -1,
     });
 
@@ -38,11 +36,11 @@ class Auth extends Model {
    *
    * @returns {Promise<Object>}
    */
-  async sanitise() {
-    // Check arguments
-    if (arguments && arguments.length) {
-      // Return sanitised with arguments
-      return await super.__sanitiseModel(...arguments);
+  async sanitise(...args) {
+    // Check args
+    if (args && args.length) {
+      // Return sanitised with args
+      return await super.__sanitiseModel(...args);
     }
 
     // Return sanitised auth
@@ -63,4 +61,4 @@ class Auth extends Model {
  *
  * @type {Auth}
  */
-exports = module.exports = Auth;
+module.exports = Auth;
