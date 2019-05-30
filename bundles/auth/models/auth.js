@@ -20,7 +20,7 @@ class Auth extends Model {
     });
 
     // Create id+type index
-    await this.createIndex('type', {
+    await this.createIndex('id+type', {
       id   : -1,
       type : -1,
     });
